@@ -17,10 +17,10 @@ void print_node(PtrNode node){
 	if(node->lchild){
 		print_node(node->lchild);
 	}
+	printf("%c:%d\n", color[node->color] , node->value);	
 	if(node->rchild){
 		print_node(node->rchild);
 	}
-	printf("%c:%d\n", color[node->color] , node->value);	
 }
 
 PtrNode new_node(int value){
