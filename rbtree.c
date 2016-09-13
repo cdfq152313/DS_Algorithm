@@ -46,7 +46,7 @@ void _clear_recu(PtrNode node){
 }
 
 void clear_nodes(PtrNode* root){
-	if(*root) return;
+	if(!*root) return;
 	_clear_recu(*root);
 	*root = NULL;
 }
