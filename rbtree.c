@@ -33,29 +33,56 @@ PtrNode new_node(int value){
 	return node;
 }
 
-void clear_recu(PtrNode node){
+void _clear_recu(PtrNode node){
 	if(node->lchild){
-		clear_recu(node->lchild);
+		_clear_recu(node->lchild);
 	}	
 	if(node->rchild){
-		clear_recu(node->rchild);
+		_clear_recu(node->rchild);
 	}
 	free(node);
 }
 
 void clear_nodes(PtrNode* root){
 	if(*root) return;
-	clear_recu(*root);
+	_clear_recu(*root);
 	*root = NULL;
 }
 
+PtrNode _insert_recu(PtrNode cur, PtrNode node){
+	if(cur->value  >= node->value){
+		if(cur->lchild){
+			return _insert_recu(cur->lchild, node);
+		}	
+		else{
+			return cur->lchild = node;
+		}
+	}
+	else{
+		if(cur->rchild){
+			return _insert_recu(cur->rchild, node);
+		}	
+		else{
+			return cur->rchild = node;
+		}
+	}
+}
+PtrNode insert_node(PtrNode *root, PtrNode node){
+	// No root
+	if(!*root){
+		*root = node;
+		return node;
+	}
+	return _insert_recu(*root, node);
+}
 
 int main()
 {
-	PtrNode root;
-	root = new_node(3);
-	root->rchild = new_node(4);
-	root->lchild = new_node(1);
+	PtrNode root = NULL;
+	insert_node(&root, new_node(5));
+	insert_node(&root, new_node(2));
+	insert_node(&root, new_node(4));
+	insert_node(&root, new_node(1));
 	
 	print_node(root);
 	
