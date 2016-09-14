@@ -13,15 +13,46 @@ struct Node{
 	PtrNode rchild;
 };
 
-void print_node(PtrNode node){
-	static char color[] = {'B', 'R'};
+void _print_node(PtrNode node){
+	static char *color[] = {"black", "red"};
 	if(node->lchild){
-		print_node(node->lchild);
+		_print_node(node->lchild);
 	}
-	printf("%c:%d\n", color[node->color] , node->value);	
+	printf("\t\"%d\" [fontcolor=white, style=filled, fillcolor=%s]\n", node->value, color[node->color]);	
 	if(node->rchild){
-		print_node(node->rchild);
+		_print_node(node->rchild);
 	}
+}
+
+static int nil_count = 0;
+void _print_dot_recu(PtrNode node){
+	static char text[] = "\t\"%d\" -- \"%d\"\n";
+	static char text2[] = "\t\"%d\" -- \"nil_%d\"\n";
+		if(node->lchild){
+		printf(text, node->value, node->lchild->value);	
+		_print_dot_recu(node->lchild);
+	}
+	else{
+		printf(text2, node->value, nil_count++);	
+	}
+	if(node->rchild){
+		printf(text, node->value, node->rchild->value);	
+		_print_dot_recu(node->rchild);
+	}
+	else{
+		printf(text2, node->value, nil_count++);	
+	}
+}
+void print_dot(PtrNode root){
+	printf("graph {\n");
+	_print_node(root);
+	printf("\n");
+	_print_dot_recu(root);
+	printf("\n");
+	for(int i = 0; i < nil_count; ++i){
+		printf("\t\"nil_%d\" [style = filled, fontcolor=white, fillcolor=black]\n", i);
+	}
+	printf("}\n");
 }
 
 PtrNode new_node(int value){
@@ -213,7 +244,7 @@ int main()
 	insert_node(&root, new_node(4));
 	insert_node(&root, new_node(1));
 	
-	print_node(root);
+	print_dot(root);
 	
 	clear_nodes(&root);
 	return 0;
