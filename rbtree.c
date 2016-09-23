@@ -386,15 +386,25 @@ void delete_node(PtrNode *root, int value){
 int main()
 {
 	PtrNode root = NULL;
-	insert_node(&root, 5);
-	insert_node(&root, 2);
-	insert_node(&root, 4); 
-	insert_node(&root, 4); 
-	insert_node(&root, 4); 
-	insert_node(&root, 1);
+	int insert_number;
+	int delete_number;
+	int value;
 	
+	scanf("%d", &insert_number);
+	for(int i = 0; i < insert_number; ++i){
+		scanf("%d", &value); 
+		insert_node(&root, value);
+	}
+	printf("insert\n");
 	print_dot(root);
-	
+	scanf("%d", &delete_number);
+	for(int i = 0; i < insert_number; ++i){
+		scanf("%d", &value); 
+		delete_node(&root, value);
+	}
+	printf("\n\ndelete\n");
+	print_dot(root);
+
 	clear_nodes(&root);
 	return 0;
 }
