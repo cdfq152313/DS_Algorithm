@@ -223,35 +223,46 @@ PtrNode _insert_adjust(PtrNode node){
 	}
 }
 
-void _insert_recu(PtrNode cur, PtrNode node){
-	if(cur->value  >= node->value){
+PtrNode _insert_recu(PtrNode cur, int value){
+	if(cur->value == value){
+		return NULL;
+	}
+	else if(cur->value > value){
 		if(cur->lchild){
-			_insert_recu(cur->lchild, node);
+			return _insert_recu(cur->lchild, value);
 		}	
 		else{
+			PtrNode node = new_node(value);
 			cur->lchild = node;
 			node->parent = cur;
+			return node;
 		}
 	}
 	else{
 		if(cur->rchild){
-			_insert_recu(cur->rchild, node);
+			return _insert_recu(cur->rchild, value);
 		}	
 		else{
+			PtrNode node = new_node(value);
 			cur->rchild = node;
 			node->parent = cur;
+			return node;
 		}
 	}
 }
-void insert_node(PtrNode *root, PtrNode node){
+void insert_node(PtrNode *root, int value){
+	PtrNode node;
 	// No root
 	if(!*root){
-		*root = node;
+		node = new_node(value);
 	}
 	else{
-		_insert_recu(*root, node);
+		node = _insert_recu(*root, value);
 	}
-	*root = _insert_adjust(node);
+	// if insert successed, adjust rbtree.
+	if(node){
+		*root = _insert_adjust(node);
+	}
 }
 
 PtrNode _search_recu(PtrNode cur, int value){
@@ -375,15 +386,13 @@ void delete_node(PtrNode *root, int value){
 int main()
 {
 	PtrNode root = NULL;
-	insert_node(&root, new_node(5));
-	insert_node(&root, new_node(2));
-	insert_node(&root, new_node(4));
-	insert_node(&root, new_node(1));
+	insert_node(&root, 5);
+	insert_node(&root, 2);
+	insert_node(&root, 4); 
+	insert_node(&root, 4); 
+	insert_node(&root, 4); 
+	insert_node(&root, 1);
 	
-	delete_node(&root, 1);
-	delete_node(&root, 4);
-	delete_node(&root, 2);
-	delete_node(&root, 5);
 	print_dot(root);
 	
 	clear_nodes(&root);
