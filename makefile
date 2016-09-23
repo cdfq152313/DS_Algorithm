@@ -1,7 +1,6 @@
 all: rbtree.c
 	clang rbtree.c
-	./a.out > a.dot
-	dot ./a.dot -T png -o ./a.png
+	./a.out 
 memory:
 	clang -g rbtree.c
 	valgrind --leak-check=yes ./a.out
