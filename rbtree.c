@@ -8,6 +8,7 @@ typedef struct Node* PtrNode;
 struct Node{
 	int value;
 	int color; // Black = 0, Red = 1
+	int null;
 	PtrNode parent;
 	PtrNode lchild;
 	PtrNode rchild;
@@ -44,6 +45,10 @@ void _print_dot_recu(PtrNode node){
 	}
 }
 void print_dot(PtrNode root){
+	if(!root){
+		printf("No Node\n");
+		return;
+	}
 	printf("graph {\n");
 	_print_node(root);
 	printf("\n");
@@ -60,6 +65,19 @@ PtrNode new_node(int value){
 	node = malloc(sizeof(struct Node));
 	node->value = value;
 	node->color = RED;
+	node->null = 0;
+	node->parent = NULL;
+	node->lchild = NULL;
+	node->rchild = NULL;
+	return node;
+}
+
+PtrNode new_node_empty(){
+	PtrNode node;
+	node = malloc(sizeof(struct Node));
+	node->color = BLACK;
+	node->value = 0;
+	node->null = 1;
 	node->parent = NULL;
 	node->lchild = NULL;
 	node->rchild = NULL;
@@ -236,6 +254,124 @@ void insert_node(PtrNode *root, PtrNode node){
 	*root = _insert_adjust(node);
 }
 
+PtrNode _search_recu(PtrNode cur, int value){
+	if(cur->value == value){
+		return cur;
+	}
+	if(cur->value  > value){
+		if(cur->lchild){
+			return _search_recu(cur->lchild, value);
+		}	
+		else{
+			return NULL;
+		}
+	}
+	else{
+		if(cur->rchild){
+			return _search_recu(cur->rchild, value);
+		}	
+		else{
+			return NULL;
+		}
+	}
+}
+
+PtrNode search_node(PtrNode root, int value){
+	if(!root){
+		return NULL;
+	}
+	else{
+		return _search_recu(root, value);
+	}
+}
+
+PtrNode _delete_node_with_0child(PtrNode del){
+	if(del->parent){
+		if(del->parent->lchild == del){
+			del->parent->lchild = NULL;
+			del->null = 1;
+			return del;
+		}
+		else{
+			del->parent->rchild = NULL;
+			del->null = 1;
+			return del;
+		}
+	}
+	else{
+		del->null = 1;
+		return del;
+	}
+}
+
+PtrNode _delete_node_with_1child(PtrNode del){
+	PtrNode child = del->lchild ? del->lchild: del->rchild;
+	child->parent = del->parent;
+	if(del->parent){
+		if(del->parent->lchild == del){
+			del->parent->lchild = child;
+			free(del);
+			return child;
+		}
+		else{
+			del->parent->rchild = child;
+			free(del);
+			return child;
+		}
+	}
+	else{
+		free(del);
+		return child;
+	}
+}
+
+PtrNode _delete_node_with_2child(PtrNode del){
+	// declare
+	PtrNode _delete_node(PtrNode del);
+	PtrNode lmax = del->lchild;
+	while(lmax->rchild != NULL){
+		lmax = lmax->rchild;
+	}
+	del->value = lmax->value;
+	return _delete_node(lmax);
+}
+
+// return x 
+PtrNode _delete_node(PtrNode del){
+	if(del->lchild && del->rchild){
+		return _delete_node_with_2child(del);
+	}
+	else if(del->lchild || del->rchild){
+		return _delete_node_with_1child(del);
+	}
+	else{
+		return _delete_node_with_0child(del);
+	}
+}
+
+void delete_node(PtrNode *root, int value){
+	PtrNode del;
+	PtrNode x;
+	del = search_node(*root, value);
+	if(del == NULL){
+		return;
+	}
+	else{
+		x = _delete_node(del);
+		if(x->parent == NULL){
+			if(x->null){
+				*root = NULL;
+			}
+			else{
+				*root = x;
+			}
+		}
+		if(x->null){
+			free(x);
+		}
+	}
+}
+
 int main()
 {
 	PtrNode root = NULL;
@@ -244,6 +380,10 @@ int main()
 	insert_node(&root, new_node(4));
 	insert_node(&root, new_node(1));
 	
+	delete_node(&root, 1);
+	delete_node(&root, 4);
+	delete_node(&root, 2);
+	delete_node(&root, 5);
 	print_dot(root);
 	
 	clear_nodes(&root);
