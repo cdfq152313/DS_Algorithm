@@ -512,7 +512,7 @@ int main()
 	printf("insert\n");
 	print_dot(root);
 	scanf("%d", &delete_number);
-	for(int i = 0; i < insert_number; ++i){
+	for(int i = 0; i < delete_number; ++i){
 		scanf("%d", &value); 
 		delete_node(&root, value);
 	}
