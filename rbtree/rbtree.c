@@ -509,14 +509,14 @@ int main()
 		scanf("%d", &value); 
 		insert_node(&root, value);
 	}
-	printf("insert\n");
+	printf("// insert\n");
 	print_dot(root);
 	scanf("%d", &delete_number);
 	for(int i = 0; i < delete_number; ++i){
 		scanf("%d", &value); 
 		delete_node(&root, value);
 	}
-	printf("\n\ndelete\n");
+	printf("\n\n// delete\n");
 	print_dot(root);
 
 	clear_nodes(&root);
