@@ -27,21 +27,22 @@ void _print_node(PtrNode node){
 
 static int nil_count = 0;
 void _print_dot_recu(PtrNode node){
-	static char text[] = "\t\"%d\" -- \"%d\"\n";
-	static char text2[] = "\t\"%d\" -- \"nil_%d\"\n";
-		if(node->lchild){
-		printf(text, node->value, node->lchild->value);	
+	static const char text[] = "\t\"%d\" -- \"%d\" [label=\"%c\"] \n";
+	static const char text2[] = "\t\"%d\" -- \"nil_%d\" [label=\"%c\"] \n";
+	static const char Left='L', Right='R';
+	if(node->lchild){
+		printf(text, node->value, node->lchild->value, Left);	
 		_print_dot_recu(node->lchild);
 	}
 	else{
-		printf(text2, node->value, nil_count++);	
+		printf(text2, node->value, nil_count++, Left);	
 	}
 	if(node->rchild){
-		printf(text, node->value, node->rchild->value);	
+		printf(text, node->value, node->rchild->value, Right);	
 		_print_dot_recu(node->rchild);
 	}
 	else{
-		printf(text2, node->value, nil_count++);	
+		printf(text2, node->value, nil_count++, Right);	
 	}
 }
 void print_dot(PtrNode root){
