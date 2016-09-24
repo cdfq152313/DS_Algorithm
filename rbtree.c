@@ -322,12 +322,10 @@ PtrNode search_node(PtrNode root, int value){
 PtrNode _delete_node_with_0child(PtrNode del){
 	if(del->parent){
 		if(del->parent->lchild == del){
-			del->parent->lchild = NULL;
 			del->null = 1;
 			return del;
 		}
 		else{
-			del->parent->rchild = NULL;
 			del->null = 1;
 			return del;
 		}
@@ -383,6 +381,98 @@ PtrNode _delete_node(PtrNode del){
 	}
 }
 
+int _is_black(PtrNode node){
+	return (!node) || (node->color == BLACK);
+}
+
+// return root
+PtrNode _delete_fixup(PtrNode x){
+	if(x->parent == NULL){
+		return x;
+	}
+	else if ( x->color == RED){
+		x->color = BLACK;
+		return get_root(x);
+	}
+	else if (x == x->parent->lchild){
+		PtrNode w = x->parent->rchild;
+		// brother is RED
+		if(w->color == RED){
+			x->parent->color = RED;
+			w->color = BLACK;
+			_left_rotate(x->parent);
+			w = x->parent->rchild;
+		}
+		// brother is BLACK
+		// two nephews are all BLACK
+		if( _is_black(x->lchild) && _is_black(x->rchild) ){
+			w->color = RED;	
+			return _delete_fixup(x->parent);
+		}
+		// at least one nephew is RED
+		else{
+			// right newphew is BLACK && left nephew is RED
+			if( _is_black(x->rchild) ){ 
+				// rotate w to let right newphew is RED
+				w->lchild->color = BLACK;
+				w->color = RED;
+				_right_rotate(w);
+				w = x->parent->rchild;
+			}
+			// right newphew is RED 
+			w->color = x->parent->color; 
+			x->parent->color = BLACK;
+			w->rchild->color = BLACK;
+			_left_rotate(x->parent);
+			return get_root(x);	
+		}
+	}
+	else{
+		PtrNode w = x->parent->lchild;
+		// brother is RED
+		if(w->color == RED){
+			x->parent->color = RED;
+			w->color = BLACK;
+			_right_rotate(x->parent);
+			w = x->parent->lchild;
+		}
+		// brother is BLACK
+		// two nephews are all BLACK
+		if( _is_black(x->lchild) && _is_black(x->rchild) ){
+			w->color = RED;	
+			return _delete_fixup(x->parent);
+		}
+		// at least one nephew is RED
+		else{
+			// left newphew is BLACK && right nephew is RED
+			if( _is_black(x->lchild) ){ 
+				// rotate w to let left newphew is RED
+				w->rchild->color = BLACK;
+				w->color = RED;
+				_left_rotate(w);
+				w = x->parent->lchild;
+			}
+			// left newphew is RED 
+			w->color = x->parent->color; 
+			x->parent->color = BLACK; 
+			w->lchild->color = BLACK;
+			_right_rotate(x->parent);
+			return get_root(x);	
+		}
+	}
+}
+
+void _free_node_if_nil(PtrNode node){
+	if(node->null){
+		if(node == node->parent->lchild){
+			node->parent->lchild = NULL;
+		}
+		else{
+			node->parent->rchild = NULL;
+		}
+		free(node);
+	}
+}
 void delete_node(PtrNode *root, int value){
 	PtrNode del;
 	PtrNode x;
@@ -391,18 +481,19 @@ void delete_node(PtrNode *root, int value){
 		return;
 	}
 	else{
-		x = _delete_node(del);
-		if(x->parent == NULL){
-			if(x->null){
+		if(del->color == RED){
+			x = _delete_node(del);
+		}
+		else{
+			x = _delete_node(del);
+			if(x->parent == NULL && x->null){
 				*root = NULL;
 			}
 			else{
-				*root = x;
+				*root = _delete_fixup(x);
 			}
 		}
-		if(x->null){
-			free(x);
-		}
+		_free_node_if_nil(x);
 	}
 }
 
