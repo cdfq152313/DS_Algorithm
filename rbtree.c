@@ -119,59 +119,57 @@ int _uncle_color(PtrNode node){
 	}
 }
 
-void _draw_node(PtrNode node){
-	// cause root is BLACK
-	// when (parent is red) search uncle color, 
-	// there are always has grandparent
-	PtrNode grandparent = node->parent->parent;
-	grandparent->color = RED;
-	if( grandparent->lchild ){
-		grandparent->lchild->color = BLACK;
-	}
-	if( grandparent->rchild ){
-		grandparent->rchild->color = BLACK;
-	}
-}
-
 PtrNode get_root(PtrNode node){
 	return node->parent ? get_root(node->parent) : node;
 }
 
 void _left_rotate(PtrNode node){
 	PtrNode parent = node->parent;
-	PtrNode grandparent = parent->parent;
+	PtrNode child = node->rchild;
 
-	parent->rchild = node->lchild;
-	parent->parent = node;
-	node->lchild = parent;
-	node->parent = grandparent;
-
-	if(grandparent){
-		if(grandparent->lchild == parent){
-			grandparent->lchild = node;
+	child->parent = parent;
+	if(parent){
+		if(parent->lchild == node){
+			parent->lchild = child;
 		}
 		else{
-			grandparent->rchild = node;
+			parent->rchild = child;
 		}
+	}
+
+	node->rchild = child->lchild;
+	if(node->rchild){
+		node->rchild->parent = node;
+	}
+
+	child->lchild = node;
+	if(child->lchild){
+		child->lchild->parent = child;
 	}
 }
 
 void _right_rotate(PtrNode node){
 	PtrNode parent = node->parent;
-	PtrNode grandparent = parent->parent;
+	PtrNode child = node->lchild;
 
-	parent->lchild = node->rchild;
-	parent->parent = node;
-	node->rchild = parent;
-	node->parent = grandparent;
-
-	if(grandparent){
-		if(grandparent->lchild == parent){
-			grandparent->lchild = node; 
+	child->parent = parent;
+	if(parent){
+		if(parent->lchild == node){
+			parent->lchild = child;
 		}
 		else{
-			grandparent->rchild = node; 
+			parent->rchild = child;
 		}
+	}
+
+	node->lchild = child->rchild;
+	if(node->lchild){
+		node->lchild->parent = node;
+	}
+	
+	child->rchild = node;
+	if(child->rchild){
+		child->rchild->parent = child;
 	}
 }
 // return root
@@ -185,40 +183,64 @@ PtrNode _insert_adjust(PtrNode node){
 	else if( node->parent->color == BLACK ){
 		return get_root(node);
 	}
-	// uncle is red 
+	// parent is red && uncle is red 
 	else if(_uncle_color(node) == RED){
-		_draw_node(node);
-		return _insert_adjust(node->parent->parent);
+		// cause root is BLACK,
+		// there are always has grandparent in this condition.
+		PtrNode grandparent = node->parent->parent;
+		grandparent->color = RED;
+		if( grandparent->lchild ){
+			grandparent->lchild->color = BLACK;
+		}
+		if( grandparent->rchild ){
+			grandparent->rchild->color = BLACK;
+		}
+		return _insert_adjust(grandparent);
 	}
-	// uncle is black
+	// parent is red && uncle is black
 	else{
 		// parent is left child
+		PtrNode top;
 		if( node->parent == node->parent->parent->lchild ){
 			// child is right child
 			if(node == node->parent->rchild){
-				_left_rotate(node);
-				_right_rotate(node);
+				_left_rotate(node->parent);
+				_right_rotate(node->parent);
+				top = node;
+				top->color = BLACK;
+				top->lchild->color = RED;
+				top->rchild->color = RED;
 			}
 			// child is left child
 			else{
-				_right_rotate(node->parent);
+				_right_rotate(node->parent->parent);
+				top = node->parent;
+				top->color = BLACK;
+				top->lchild->color = RED;
+				top->rchild->color = RED;
 			}
 		}
 		// parent is right child
 		else{
 			// child is left child	
 			if(node == node->parent->lchild){
-				_right_rotate(node);
-				_left_rotate(node);
+				_right_rotate(node->parent);
+				_left_rotate(node->parent);
+				top = node;
+				top->color = BLACK;
+				top->lchild->color = RED;
+				top->rchild->color = RED;
 			}
 			// child is right child
 			else{
-				_left_rotate(node->parent);
+				_left_rotate(node->parent->parent);
+				top = node->parent;
+				top->color = BLACK;
+				top->lchild->color = RED;
+				top->rchild->color = RED;
 			}
 		}
 
-		node->lchild->color = RED;
-		node->rchild->color = RED;
 		return get_root(node);
 	}
 }
